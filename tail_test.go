@@ -12,6 +12,7 @@ import (
 const (
 	TESTDIR = ".test"
 	FILE    = "tailed.txt"
+	WAITSEC = 3
 )
 
 func check(message string, err error, t *testing.T) {
@@ -22,6 +23,7 @@ func check(message string, err error, t *testing.T) {
 }
 
 func setup(t *testing.T, numlines int64, line string) {
+	fmt.Print("setup...")
 	_, err := os.Stat(TESTDIR)
 	if err == nil {
 		t.Fatal("test dir already exists!")
@@ -38,7 +40,7 @@ func setup(t *testing.T, numlines int64, line string) {
 		check("unable to write to test file!", err, t)
 	}
 
-	fmt.Println("setup done!")
+	fmt.Println("done!")
 }
 
 func tear(t *testing.T) {
@@ -49,11 +51,11 @@ func tear(t *testing.T) {
 
 func TestOne(t *testing.T) {
 	myline := "This is a simple line"
-	var mycount int64 = 10000000
+	var mycount int64 = 1000000
 	setup(t, mycount, myline)
 	defer tear(t)
 
-	tail, err := TailFile(path.Join(TESTDIR, FILE), 100)
+	tail, err := TailFile(path.Join(TESTDIR, FILE), "+1", 100)
 	check("unable to tail file!", err, t)
 	fmt.Println(tail)
 
@@ -80,15 +82,15 @@ func TestOne(t *testing.T) {
 
 func TestWaitBeforeRead(t *testing.T) {
 	myline := "This is a simple line"
-	var mycount int64 = 10000000
+	var mycount int64 = 1000000
 	setup(t, mycount, myline)
 	defer tear(t)
 
-	tail, err := TailFile(path.Join(TESTDIR, FILE), 100)
+	tail, err := TailFile(path.Join(TESTDIR, FILE), "+1", 100)
 	check("unable to tail file!", err, t)
 	fmt.Println(tail)
-	fmt.Println("waiting for 10 seconds...")
-	time.Sleep(10 * time.Second)
+	fmt.Printf("waiting for %d seconds...\n", WAITSEC)
+	time.Sleep(WAITSEC * time.Second)
 	fmt.Println("done waiting!")
 
 	var count int64 = 0
@@ -113,16 +115,16 @@ func TestWaitBeforeRead(t *testing.T) {
 }
 
 func TestLongLine(t *testing.T) {
-	myline := strings.Repeat("This is an extraordinarily long but simple line", 10000)
-	var mycount int64 = 10000
+	myline := strings.Repeat("This is an extraordinarily long but simple line", 1000)
+	var mycount int64 = 1000
 	setup(t, mycount, myline)
 	defer tear(t)
 
-	tail, err := TailFile(path.Join(TESTDIR, FILE), 500000)
+	tail, err := TailFile(path.Join(TESTDIR, FILE), "+1", 500000)
 	check("unable to tail file!", err, t)
 	fmt.Println(tail)
-	fmt.Println("waiting for 10 seconds...")
-	time.Sleep(10 * time.Second)
+	fmt.Printf("waiting for %d seconds...\n", WAITSEC)
+	time.Sleep(WAITSEC * time.Second)
 	fmt.Println("done waiting!")
 
 	var count int64 = 0

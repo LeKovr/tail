@@ -28,14 +28,15 @@ func (t *Tail) String() string {
 
 // begins tailing a linux file. Output stream is
 // made available through `Tail.Lines` channel
-func TailFile(filepath string, buffersize int) (*Tail, error) {
+// lines used with "-n" argument and may be prefixed with "+"
+func TailFile(filepath, lines string, buffersize int) (*Tail, error) {
 	// check whether the file exists
 	_, err := os.Stat(filepath)
 	if err != nil {
 		return nil, err
 	}
 
-	cmd := exec.Command("tail", "-c", "+1", "-f", filepath)
+	cmd := exec.Command("tail", "-n", lines, "-F", filepath)
 	reader, err := cmd.StdoutPipe()
 	if err != nil {
 		return nil, err
