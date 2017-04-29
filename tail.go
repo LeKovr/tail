@@ -77,7 +77,7 @@ func TailFile(filepath, lines string, buffersize int) (*Tail, error) {
 }
 
 // stops tailing the file
-func (t *Tail) Stop() {
+func (t *Tail) Stop() error {
 	t.cmd.Process.Signal(syscall.SIGINT)
 	timeout := time.After(2 * time.Second)
 	select {
@@ -88,4 +88,5 @@ func (t *Tail) Stop() {
 	}
 
 	close(t.wait)
+	return t.cmd.Wait()
 }
